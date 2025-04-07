@@ -17,17 +17,29 @@ function App() {
     }
     return false;
   });
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const savedSchedules = localStorage.getItem('schedules');
     if (savedSchedules) {
       setSchedules(JSON.parse(savedSchedules));
     }
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDark(true);
+    } else {
+      setIsDark(false);
+    }
+
+    setInitialized(true);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('schedules', JSON.stringify(schedules));
-  }, [schedules]);
+    if (initialized) {
+      localStorage.setItem('schedules', JSON.stringify(schedules));
+    }
+  }, [schedules, initialized]);
 
   useEffect(() => {
     if (isDark) {
@@ -84,7 +96,21 @@ function App() {
   const handleSaveAsPNG = async () => {
     const gridElement = document.getElementById('schedule-grid');
     if (gridElement) {
-      const canvas = await html2canvas(gridElement);
+      const canvas = await html2canvas(gridElement, {
+        onclone: (clonedDoc) => {
+          const clonedGrid = clonedDoc.getElementById('schedule-grid');
+          if (clonedGrid) {
+            clonedGrid.classList.remove('dark-theme');
+            clonedGrid.classList.add('light-theme');
+
+            clonedGrid.querySelectorAll('*').forEach((node) => {
+              if (node instanceof HTMLElement) {
+                node.style.color = 'black';
+              }
+            });
+          }
+        }
+      });
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = 'grade-horarios.png';
