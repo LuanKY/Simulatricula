@@ -1,10 +1,13 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { Download, Save, Trash2, Upload } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { Background } from './components/Background';
 import { ScheduleForm } from './components/ScheduleForm';
 import { ScheduleGrid } from './components/ScheduleGrid';
 import { ScheduleModal } from './components/ScheduleModal';
 import { ThemeToggle } from './components/ThemeToggle';
+import { ThemeContext } from './hooks/useTheme';
 import { ClassSchedule } from './types';
 
 function App() {
@@ -95,109 +98,196 @@ function App() {
 
   const handleSaveAsPNG = async () => {
     const gridElement = document.getElementById('schedule-grid');
-    if (gridElement) {
-      const canvas = await html2canvas(gridElement, {
+    if (!gridElement) return;
+  
+    const fixedWidth = 1260;
+    const fixedHeight = gridElement.offsetHeight;
+  
+    const clone = gridElement.cloneNode(true) as HTMLElement;
+    clone.style.width = `${fixedWidth}px`;
+    clone.style.height = `${fixedHeight}px`;
+  
+    const container = document.createElement('div');
+    container.appendChild(clone);
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '-9999px';
+    document.body.appendChild(container);
+  
+    clone.querySelectorAll('*').forEach((node) => {
+      if (node instanceof HTMLElement) {
+        node.classList.remove('dark');
+  
+        node.style.color = 'black';
+  
+        const isHeader =
+          node.tagName === 'TH' ||
+          node.tagName === 'THEAD' ||
+          node.classList.contains('header') ||
+          node.closest('thead');
+  
+        if (isHeader) {
+          node.style.backgroundColor = 'white';
+        }
+  
+        if (node.classList.contains('dark:bg-gray-800')) {
+          node.style.backgroundColor = 'white';
+        }
+        if (node.classList.contains('dark:border-gray-700')) {
+          node.style.borderColor = '#e5e7eb'; 
+        }
+      }
+    });
+  
+    try {
+      const canvas = await html2canvas(clone, {
+        backgroundColor: '#ffffff',
+        scale: 1,
+        logging: false,
+        width: fixedWidth,
+        height: fixedHeight,
         onclone: (clonedDoc) => {
-          const clonedGrid = clonedDoc.getElementById('schedule-grid');
-          if (clonedGrid) {
-            clonedGrid.classList.remove('dark-theme');
-            clonedGrid.classList.add('light-theme');
-
-            clonedGrid.querySelectorAll('*').forEach((node) => {
-              if (node instanceof HTMLElement) {
-                node.style.color = 'black';
-              }
-            });
+          const clonedElement = clonedDoc.body.querySelector('#schedule-grid');
+          if (clonedElement instanceof HTMLElement) {
+            clonedElement.style.width = `${fixedWidth}px`;
+            clonedElement.style.height = `${fixedHeight}px`;
           }
         }
       });
+  
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = 'grade-horarios.png';
       link.href = dataUrl;
       link.click();
+    } finally {
+      document.body.removeChild(container);
     }
   };
+  
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
-      <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
+    <ThemeContext.Provider value={{ isDark, toggleTheme: () => setIsDark(!isDark) }}>
+      <div className="relative min-h-screen overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-500">
+        <Background />
 
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Simulatrícula (Simulador de Matrículas Institucionais)
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-300">
-            Gerencie sua grade de horários de forma simples e eficiente
-          </p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative z-10 py-8 px-4 sm:px-6 lg:px-8"
+        >
+          <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <div className="lg:col-span-1 bg-white dark:bg-gray-800 p-6 rounded-lg shadow transition-colors duration-200">
-            <h2 className="text-lg font-semibold mb-4 dark:text-white">Adicionar Turma</h2>
-            <ScheduleForm onSubmit={handleAddSchedule} />
-          </div>
+          <div className="max-w-[1920px] mx-auto">
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-center mb-8"
+            >
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                Simulatrícula
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
+                Simulador de Matrículas Institucionais
+              </p>
+            </motion.div>
 
-          <div className="lg:col-span-3">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow transition-colors duration-200">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold dark:text-white">Grade de Horários</h2>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setSchedules([])}
-                    className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Limpar
-                  </button>
-                  <button
-                    onClick={handleSaveAsPNG}
-                    className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Salvar PNG
-                  </button>
-                  <button
-                    onClick={handleExport}
-                    className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors duration-200"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Exportar
-                  </button>
-                  <label className="flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-200">
-                    <Upload className="w-4 h-4 mr-2" />
-                    Importar
-                    <input
-                      type="file"
-                      accept=".json"
-                      onChange={handleImport}
-                      className="hidden"
-                    />
-                  </label>
+            <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="xl:col-span-1"
+              >
+                <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+                  <h2 className="text-lg font-semibold mb-4 dark:text-white">Adicionar Turma</h2>
+                  <ScheduleForm onSubmit={handleAddSchedule} />
                 </div>
-              </div>
+              </motion.div>
 
-              <div id="schedule-grid" className="overflow-x-auto">
-                <ScheduleGrid
-                  schedules={schedules}
-                  onScheduleClick={setSelectedSchedule}
-                />
-              </div>
+              <motion.div
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="xl:col-span-4"
+              >
+                <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <h2 className="text-lg font-semibold dark:text-white">Grade de Horários</h2>
+                    <div className="flex flex-wrap gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setSchedules([])}
+                        className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 bg-red-50/80 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors duration-200"
+                        title="Limpar toda a grade"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Limpar
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleSaveAsPNG}
+                        className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-green-600 dark:text-green-400 bg-green-50/80 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors duration-200"
+                        title="Salvar grade como imagem PNG"
+                      >
+                        <Save className="w-4 h-4 mr-2" />
+                        Salvar PNG
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleExport}
+                        className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50/80 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors duration-200"
+                        title="Exportar dados para arquivo JSON"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Exportar
+                      </motion.button>
+                      <motion.label
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50/80 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 cursor-pointer transition-colors duration-200"
+                        title="Importar dados de arquivo JSON"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Importar
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleImport}
+                          className="hidden"
+                        />
+                      </motion.label>
+                    </div>
+                  </div>
+
+                  <div id="schedule-grid" className="overflow-x-auto rounded-lg">
+                    <ScheduleGrid
+                      schedules={schedules}
+                      onScheduleClick={setSelectedSchedule}
+                    />
+                  </div>
+                </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
 
-        {selectedSchedule && (
-          <ScheduleModal
-            schedule={selectedSchedule}
-            onClose={() => setSelectedSchedule(null)}
-            onUpdate={handleUpdateSchedule}
-            onDelete={handleDeleteSchedule}
-          />
-        )}
+            <AnimatePresence>
+              {selectedSchedule && (
+                <ScheduleModal
+                  schedule={selectedSchedule}
+                  onClose={() => setSelectedSchedule(null)}
+                  onUpdate={handleUpdateSchedule}
+                  onDelete={handleDeleteSchedule}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </ThemeContext.Provider>
   );
 }
 

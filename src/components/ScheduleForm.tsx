@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { ClassSchedule } from '../types';
 import { parseTimeCode, validateTimeCode, capitalizeWords } from '../utils/scheduleParser';
 import { ErrorModal } from './ErrorModal';
@@ -45,35 +46,43 @@ export function ScheduleForm({ onSubmit, initialData }: Props) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <motion.form 
+        onSubmit={handleSubmit} 
+        className="space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Professor
           </label>
           <input
             type="text"
             value={formData.professor}
             onChange={(e) => setFormData(prev => ({ ...prev, professor: e.target.value }))}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+            placeholder="Nome do professor"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Disciplina
           </label>
           <input
             type="text"
             value={formData.discipline}
             onChange={(e) => setFormData(prev => ({ ...prev, discipline: e.target.value }))}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+            placeholder="Nome da disciplina"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Código de Horário
           </label>
           <input
@@ -81,18 +90,21 @@ export function ScheduleForm({ onSubmit, initialData }: Props) {
             value={formData.timeCode}
             onChange={(e) => setFormData(prev => ({ ...prev, timeCode: e.target.value.toUpperCase() }))}
             placeholder="Ex: 35T12 ou 4N12 6N34"
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
+            title="Formato: [DIAS][TURNO][HORÁRIOS] - Ex: 35T12 (Terça e Quinta, Tarde, 1º e 2º horários)"
             required
           />
         </div>
 
-        <button
+        <motion.button
           type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-medium"
         >
           {initialData ? 'Atualizar' : 'Adicionar'} Turma
-        </button>
-      </form>
+        </motion.button>
+      </motion.form>
 
       {showError && (
         <ErrorModal
