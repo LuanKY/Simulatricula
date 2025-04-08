@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { loadSlim } from "tsparticles-slim";
-import type { Container, Engine } from "tsparticles-engine";
-import { useTheme } from "../hooks/useTheme";
 import { Particles } from "react-tsparticles";
+import type { Container, Engine } from "tsparticles-engine";
+import { loadSlim } from "tsparticles-slim";
+import { useTheme } from "../hooks/useTheme";
 
 export function Background() {
   const { isDark } = useTheme();

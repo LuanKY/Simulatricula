@@ -1,13 +1,13 @@
-import { ClassSchedule, TimeSlot, Period } from '../types';
+import { Period, TimeSlot } from '../types';
 
 const DAYS_MAP: Record<string, number> = {
-  '0': 0, // Sunday
-  '2': 1, // Monday
-  '3': 2, // Tuesday
-  '4': 3, // Wednesday
-  '5': 4, // Thursday
-  '6': 5, // Friday
-  '7': 6, // Saturday
+  '0': 0,
+  '2': 1,
+  '3': 2,
+  '4': 3,
+  '5': 4,
+  '6': 5,
+  '7': 6,
 };
 
 const TIME_RANGES = {
@@ -38,7 +38,7 @@ const TIME_RANGES = {
 function parseTimeBlock(code: string): { days: string[], period: Period, slots: number[] } {
   const match = code.match(/^([0234567]+)([MTN])([1-6]+)$/);
   if (!match) throw new Error('Invalid time code format');
-  
+
   const [, days, period, slots] = match;
   return {
     days: days.split(''),
@@ -49,23 +49,20 @@ function parseTimeBlock(code: string): { days: string[], period: Period, slots: 
 
 export function validateTimeCode(timeCode: string): boolean {
   const codes = timeCode.trim().split(' ');
-  
+
   try {
     for (const code of codes) {
       const { days, period, slots } = parseTimeBlock(code);
-      
-      // Validate days
+
       if (days.some(day => !DAYS_MAP.hasOwnProperty(day))) {
         return false;
       }
 
-      // Validate slots based on period
       const maxSlot = period === 'N' ? 4 : 6;
       if (slots.some(slot => slot < 1 || slot > maxSlot)) {
         return false;
       }
 
-      // Validate slots are in ascending order
       for (let i = 1; i < slots.length; i++) {
         if (slots[i] <= slots[i - 1]) {
           return false;
@@ -84,8 +81,7 @@ export function parseTimeCode(timeCode: string): TimeSlot[] {
 
   for (const code of codes) {
     const { days, period, slots: timeSlots } = parseTimeBlock(code);
-    
-    // Calculate the base index for the period
+
     const baseIndex = period === 'M' ? 0 : period === 'T' ? 6 : 12;
 
     for (const day of days) {

@@ -1,5 +1,4 @@
-import React from 'react';
-import { X, AlertCircle } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 
 interface Props {
   message: string;

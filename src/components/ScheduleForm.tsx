@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { ClassSchedule } from '../types';
-import { parseTimeCode, validateTimeCode, capitalizeWords } from '../utils/scheduleParser';
+import { capitalizeWords, parseTimeCode, validateTimeCode } from '../utils/scheduleParser';
 import { ErrorModal } from './ErrorModal';
 
 interface Props {
@@ -19,14 +19,14 @@ export function ScheduleForm({ onSubmit, initialData }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateTimeCode(formData.timeCode)) {
       setShowError(true);
       return;
     }
-    
+
     const schedules = parseTimeCode(formData.timeCode);
-    
+
     onSubmit({
       id: initialData?.id || crypto.randomUUID(),
       ...formData,
@@ -46,8 +46,8 @@ export function ScheduleForm({ onSubmit, initialData }: Props) {
 
   return (
     <>
-      <motion.form 
-        onSubmit={handleSubmit} 
+      <motion.form
+        onSubmit={handleSubmit}
         className="space-y-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

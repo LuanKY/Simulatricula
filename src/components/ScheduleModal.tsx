@@ -1,7 +1,6 @@
-import React from 'react';
+import { X } from 'lucide-react';
 import { ClassSchedule } from '../types';
 import { ScheduleForm } from './ScheduleForm';
-import { X } from 'lucide-react';
 
 interface Props {
   schedule: ClassSchedule;

@@ -1,5 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
 import { ClassSchedule, TimeRange } from '../types';
 import { generateTimeRanges } from '../utils/scheduleParser';
 
@@ -14,9 +14,9 @@ const timeRanges = generateTimeRanges();
 export function ScheduleGrid({ schedules, onScheduleClick }: Props) {
   const renderTimeCell = (time: TimeRange, dayIndex: number) => {
     const timeIndex = timeRanges.indexOf(time);
-    const matchingSchedules = schedules.filter(schedule => 
-      schedule.schedules.some(slot => 
-        slot.day === dayIndex && 
+    const matchingSchedules = schedules.filter(schedule =>
+      schedule.schedules.some(slot =>
+        slot.day === dayIndex &&
         slot.slots.includes(timeIndex)
       )
     );
@@ -30,7 +30,7 @@ export function ScheduleGrid({ schedules, onScheduleClick }: Props) {
     }
 
     return (
-      <motion.td 
+      <motion.td
         whileHover={{ scale: 1.02 }}
         className="border p-1 h-16 w-32 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 cursor-pointer dark:border-gray-700 transition-all duration-200"
         onClick={() => onScheduleClick(matchingSchedules[0])}
