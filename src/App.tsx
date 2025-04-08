@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import { Download, Save, Trash2, Upload } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Background } from './components/Background';
 import { ScheduleForm } from './components/ScheduleForm';
 import { ScheduleGrid } from './components/ScheduleGrid';
 import { ScheduleModal } from './components/ScheduleModal';
@@ -99,46 +98,46 @@ function App() {
   const handleSaveAsPNG = async () => {
     const gridElement = document.getElementById('schedule-grid');
     if (!gridElement) return;
-  
+
     const fixedWidth = 1260;
     const fixedHeight = gridElement.offsetHeight;
-  
+
     const clone = gridElement.cloneNode(true) as HTMLElement;
     clone.style.width = `${fixedWidth}px`;
     clone.style.height = `${fixedHeight}px`;
-  
+
     const container = document.createElement('div');
     container.appendChild(clone);
     container.style.position = 'absolute';
     container.style.left = '-9999px';
     container.style.top = '-9999px';
     document.body.appendChild(container);
-  
+
     clone.querySelectorAll('*').forEach((node) => {
       if (node instanceof HTMLElement) {
         node.classList.remove('dark');
-  
+
         node.style.color = 'black';
-  
+
         const isHeader =
           node.tagName === 'TH' ||
           node.tagName === 'THEAD' ||
           node.classList.contains('header') ||
           node.closest('thead');
-  
+
         if (isHeader) {
           node.style.backgroundColor = 'white';
         }
-  
+
         if (node.classList.contains('dark:bg-gray-800')) {
           node.style.backgroundColor = 'white';
         }
         if (node.classList.contains('dark:border-gray-700')) {
-          node.style.borderColor = '#e5e7eb'; 
+          node.style.borderColor = '#e5e7eb';
         }
       }
     });
-  
+
     try {
       const canvas = await html2canvas(clone, {
         backgroundColor: '#ffffff',
@@ -154,7 +153,7 @@ function App() {
           }
         }
       });
-  
+
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = 'grade-horarios.png';
@@ -164,13 +163,11 @@ function App() {
       document.body.removeChild(container);
     }
   };
-  
+
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme: () => setIsDark(!isDark) }}>
-      <div className="relative min-h-screen overflow-x-hidden bg-white dark:bg-gray-900 transition-colors duration-500">
-        <Background />
-
+      <div className="relative min-h-screen overflow-x-hidden dark:bg-gray-900 transition-colors duration-500">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -200,7 +197,7 @@ function App() {
                 transition={{ delay: 0.3 }}
                 className="xl:col-span-1"
               >
-                <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+                <div className="border-[0.5px] border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
                   <h2 className="text-lg font-semibold mb-4 dark:text-white">Adicionar Turma</h2>
                   <ScheduleForm onSubmit={handleAddSchedule} />
                 </div>
@@ -212,7 +209,7 @@ function App() {
                 transition={{ delay: 0.4 }}
                 className="xl:col-span-4"
               >
-                <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
+                <div className="border-[0.5px] border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                     <h2 className="text-lg font-semibold dark:text-white">Grade de Horários</h2>
                     <div className="flex flex-wrap gap-2">

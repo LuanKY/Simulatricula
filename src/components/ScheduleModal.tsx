@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { ClassSchedule } from '../types';
 import { ScheduleForm } from './ScheduleForm';
@@ -11,8 +12,19 @@ interface Props {
 
 export function ScheduleModal({ schedule, onClose, onUpdate, onDelete }: Props) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md">
+    <motion.div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md"
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 30 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
         <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
           <h2 className="text-lg font-semibold dark:text-white">Detalhes da Turma</h2>
           <button
@@ -32,17 +44,20 @@ export function ScheduleModal({ schedule, onClose, onUpdate, onDelete }: Props) 
             }}
           />
 
-          <button
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="mt-2 w-full py-2 px-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200 font-medium"
             onClick={() => {
               onDelete(schedule.id);
               onClose();
             }}
-            className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
           >
             Remover Turma
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
